@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "aws-sdk", "~> 2.1.15"
+  spec.add_dependency "aws_config"
   spec.add_dependency "oj"
   spec.add_dependency "ox"
   spec.add_dependency "thor"

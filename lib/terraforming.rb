@@ -2,6 +2,7 @@ require "oj"
 require "ox"
 
 require "aws-sdk-core"
+require "aws_config"
 require "erb"
 require "json"
 require "thor"

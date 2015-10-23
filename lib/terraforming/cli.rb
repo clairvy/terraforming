@@ -3,6 +3,7 @@ module Terraforming
     class_option :merge, type: :string, desc: "tfstate file to merge"
     class_option :overwrite, type: :boolean, desc: "Overwrite existng tfstate"
     class_option :tfstate, type: :boolean, desc: "Generate tfstate"
+    class_option :profile, type: :string, desc: "profile"
 
     desc "dbpg", "Database Parameter Group"
     def dbpg
@@ -137,6 +138,8 @@ module Terraforming
     private
 
     def execute(klass, options)
+      set_credentials
+
       result = options[:tfstate] ? tfstate(klass, options[:merge]) : tf(klass)
 
       if options[:tfstate] && options[:merge] && options[:overwrite]
@@ -146,6 +149,27 @@ module Terraforming
         end
       else
         puts result
+      end
+    end
+
+    def set_credentials
+      profile_name = options[:profile]
+      profile_name ||= ENV['AWS_PROFILE']
+
+      # with assume_role
+      if profile_name
+        aws_config = AWSConfig.profiles[profile_name].entries
+        if aws_config["role_arn"]
+          role_opt = {}
+          role_opt[:role_arn] = aws_config["role_arn"]
+          role_opt[:role_session_name] = aws_config["role_session_name"]
+          role_opt[:role_session_name] ||= 'session-name'
+          if aws_config["source_profile"]
+            role_opt[:client] = Aws::STS::Client.new(credentials: Aws::SharedCredentials.new(profile_name: aws_config["source_profile"]))
+          end
+          credentials = Aws::AssumeRoleCredentials.new(role_opt)
+          Aws.config[:credentials] = credentials
+        end
       end
     end
 
