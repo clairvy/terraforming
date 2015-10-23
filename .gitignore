@@ -7,3 +7,6 @@
 /pkg/
 /spec/reports/
 /tmp/
+/.aws/config
+/.aws/credentials
+/local.env
